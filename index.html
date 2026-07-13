@@ -1,0 +1,455 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Data Diri</title>
+  <link rel="stylesheet" href="left_nav.css" />
+  <link rel="stylesheet" href="right_nav.css" />
+
+  <style>
+    :root {
+      --bg: #0b1220;
+      --card: rgba(255, 255, 255, 0.06);
+      --text: #e9eefc;
+      --muted: rgba(233, 238, 252, 0.75);
+      --primary: #4f8cff;
+      --primary2: #7c5cff;
+      --border: rgba(255, 255, 255, 0.14);
+      --overlayGlow: rgba(124, 92, 255, 0.55);
+    }
+
+    /* =========================
+       WELCOME OVERLAY
+    ========================= */
+    #welcomeOverlay {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      display: grid;
+      place-items: center;
+      background:
+        radial-gradient(900px 480px at 10% 15%, rgba(79, 140, 255, 0.35), transparent 60%),
+        radial-gradient(700px 420px at 90% 20%, rgba(124, 92, 255, 0.35), transparent 55%),
+        rgba(11, 18, 32, 0.88);
+      backdrop-filter: blur(8px);
+      opacity: 1;
+      animation: overlayIn 700ms cubic-bezier(.2,.8,.2,1) both;
+    }
+
+    #welcomeOverlay .box {
+      width: min(560px, 92vw);
+      padding: 26px 22px;
+      border-radius: 22px;
+      border: 1px solid rgba(255,255,255,0.14);
+      background: rgba(255,255,255,0.06);
+      box-shadow: 0 20px 60px rgba(79,140,255,0.16), 0 10px 30px rgba(124,92,255,0.12);
+      position: relative;
+      overflow: hidden;
+      transform: translateZ(0);
+    }
+
+    #welcomeOverlay .box::before {
+      content: "";
+      position: absolute;
+      inset: -2px;
+      background: linear-gradient(120deg, transparent 20%, rgba(255,255,255,0.22) 40%, transparent 60%);
+      transform: translateX(-100%);
+      animation: shine 1400ms ease-in-out infinite;
+      pointer-events: none;
+    }
+
+    #welcomeOverlay .title {
+      margin: 0;
+      text-align: center;
+      font-size: clamp(28px, 4.5vw, 52px);
+      letter-spacing: 0.35px;
+      line-height: 1.08;
+      font-weight: 900;
+      background: linear-gradient(90deg, #6d28d9, #8b5cf6, #6d28d9);
+      -webkit-background-clip: text;
+      background-clip: text;
+      text-shadow: 0 0 16px rgba(139, 92, 246, 0.35);
+      -webkit-font-smoothing: antialiased;
+      text-rendering: geometricPrecision;
+    }
+
+    #welcomeOverlay .subtitle {
+      margin: 10px 0 0;
+      text-align: center;
+      color: rgba(233, 238, 252, 0.78);
+      font-size: 14px;
+    }
+
+    #welcomeOverlay .chars {
+      display: inline-block;
+      white-space: nowrap;
+      overflow: visible;
+    }
+
+    #welcomeOverlay .char {
+      display: inline-block;
+      opacity: 0;
+      transform: translateY(14px) scale(0.92);
+      animation: charUp 800ms cubic-bezier(.2,.8,.2,1) both;
+      filter: drop-shadow(0 8px 14px rgba(0,0,0,0.25));
+    }
+
+    #welcomeOverlay .char[data-i] {
+      animation-delay: calc(60ms * var(--d));
+    }
+
+    #welcomeOverlay .meta {
+      margin-top: 16px;
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    #welcomeOverlay .pill {
+      padding: 8px 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.14);
+      background: rgba(0,0,0,0.14);
+      color: rgba(233,238,252,0.8);
+      font-weight: 700;
+      font-size: 12px;
+    }
+
+    #welcomeOverlay .spinner {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: 1px solid rgba(255,255,255,0.16);
+      border-top-color: rgba(79,140,255,0.85);
+      animation: spin 900ms linear infinite;
+      box-shadow: 0 0 22px rgba(79,140,255,0.18);
+    }
+
+    #welcomeOverlay.is-exiting {
+      opacity: 0;
+      animation: overlayOut 520ms ease both;
+    }
+
+    @keyframes overlayIn {
+      from { opacity: 0; transform: scale(0.98); }
+      to { opacity: 1; transform: scale(1); }
+    }
+    @keyframes overlayOut {
+      from { opacity: 1; transform: scale(1); }
+      to { opacity: 0; transform: scale(0.985); }
+    }
+
+    @keyframes shine {
+      0% { transform: translateX(-120%); opacity: 0; }
+      20% { opacity: 1; }
+      50% { opacity: 1; }
+      100% { transform: translateX(120%); opacity: 0; }
+    }
+
+    @keyframes charUp {
+      0% { opacity: 0; transform: translateY(14px) scale(0.92); }
+      60% { opacity: 1; }
+      100% { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: radial-gradient(1200px 600px at 20% 0%, rgba(79, 140, 255, 0.35), transparent 60%),
+                  radial-gradient(900px 500px at 90% 10%, rgba(124, 92, 255, 0.35), transparent 55%),
+                  var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 28px 16px;
+      display: flex;
+      justify-content: center;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: -30vh -30vw;
+      z-index: 0;
+      pointer-events: none;
+      background:
+        linear-gradient(110deg,
+          rgba(124,92,255,0.00) 0%,
+          rgba(124,92,255,0.20) 38%,
+          rgba(255,255,255,0.16) 50%,
+          rgba(79,140,255,0.20) 62%,
+          rgba(79,140,255,0.00) 100%);
+      opacity: 0.55;
+      animation: bodyLightSweep 2.4s ease-in-out infinite;
+    }
+
+    body::after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      z-index: 1;
+      pointer-events: none;
+      background-image:
+        radial-gradient(2px 2px at 20px 30px, rgba(255,255,255,0.85) 40%, transparent 60%),
+        radial-gradient(1.5px 1.5px at 120px 90px, rgba(255,255,255,0.65) 40%, transparent 60%),
+        radial-gradient(2px 2px at 210px 160px, rgba(255,255,255,0.75) 40%, transparent 60%),
+        radial-gradient(1.5px 1.5px at 320px 120px, rgba(255,255,255,0.60) 40%, transparent 60%),
+        radial-gradient(2px 2px at 420px 220px, rgba(255,255,255,0.70) 40%, transparent 60%);
+      background-size: 520px 340px;
+      opacity: 0.16;
+      animation: sparkle 3s ease-in-out infinite;
+    }
+
+    .container { position: relative; z-index: 2; width: 100%; max-width: 500px; }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 22px;
+      backdrop-filter: blur(8px);
+      box-shadow: 0 10px 30px rgba(99, 72, 255, 0.25);
+    }
+
+    .profile {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+      text-align: center;
+    }
+
+    .profile img {
+      width: 300px;
+      height: 300px;
+      object-fit: cover;
+    }
+
+    h1 { margin: 0; font-size: 26px; letter-spacing: 0.2px; }
+
+    .subtitle { margin: 0; color: var(--muted); font-size: 14px; }
+
+    .btn {
+      appearance: none;
+      border: 1px solid rgba(255,255,255,0.18);
+      background: rgba(15, 255, 11, 0.41);
+      color: var(--text);
+      padding: 10px 14px;
+      border-radius: 12px;
+      cursor: pointer;
+      font-weight: 700;
+      transition: transform 0.05s ease, background 0.2s ease, border-color 0.2s ease;
+    }
+
+    .btn:hover { background: rgba(255,255,255,0.10); border-color: rgba(255,255,255,0.28); }
+    .btn:active { transform: translateY(1px); }
+
+    .btn-primary {
+      border: none;
+      background: linear-gradient(135deg, var(--primary), var(--primary2));
+      box-shadow: 0 10px 25px rgba(79,140,255,0.25);
+    }
+
+    .actions {
+      margin-top: 18px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      justify-content: center;
+    }
+
+    .toggle-area {
+      display: none;
+      margin-top: 12px;
+      padding: 14px;
+      border-radius: 14px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.12);
+      color: var(--muted);
+      line-height: 1.6;
+      opacity: 0;
+      transform: translateY(-10px) scale(0.92);
+      transition: opacity 220ms ease, transform 260ms cubic-bezier(.2,.8,.2,1);
+      transform-origin: top center;
+      will-change: transform, opacity;
+    }
+
+    .toggle-area.open {
+      display: block;
+      opacity: 1;
+      transform: translateY(0) scale(1);
+      animation: toggleZoomOut 420ms cubic-bezier(.2,.8,.2,1) both;
+    }
+
+    @keyframes toggleZoomOut {
+      0% { transform: translateY(-10px) scale(0.92); opacity: 0; filter: blur(2px); }
+      45% { transform: translateY(2px) scale(1.02); opacity: 1; filter: blur(0); }
+      100% { transform: translateY(0) scale(1); opacity: 1; filter: blur(0); }
+    }
+
+    @keyframes bodyLightSweep {
+      0%   { transform: translateX(-40%) translateY(10%) scale(1); opacity: 0; }
+      15%  { opacity: 0.55; }
+      50%  { transform: translateX(10%) translateY(-5%) scale(1.05); opacity: 0.55; }
+      85%  { opacity: 0.40; }
+      100% { transform: translateX(45%) translateY(10%) scale(1); opacity: 0; }
+    }
+
+    @keyframes sparkle {
+      0%, 100% { transform: translateY(0); opacity: 0.10; }
+      50% { transform: translateY(-10px); opacity: 0.24; }
+    }
+  </style>
+</head>
+<body>
+  <div id="welcomeOverlay" aria-hidden="true">
+    <div class="box">
+      <h1 class="title" aria-label="Selamat Datang">
+        <span class="chars" id="welcomeChars"></span>
+      </h1>
+      <div class="subtitle">Data Diri • AMIN APRIYANSYAH</div>
+      <div class="meta">
+        <div class="pill">Loading...</div>
+        <div class="spinner" aria-hidden="true"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Left Instagram -->
+  <div class="left-nav">
+    <a href="https://www.instagram.com/" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
+      <img src="foto/ig.jpg" alt="Instagram" />
+    </a>
+  </div>
+
+  <!-- Right TikTok -->
+  <div class="right-nav">
+    <a href="https://www.tiktok.com/id-ID/" target="_blank" rel="noopener noreferrer" aria-label="TikTok">
+      <img src="foto/tt.jpg" alt="TikTok" />
+    </a>
+  </div>
+
+  <div class="container">
+    <div class="card">
+      <div class="profile">
+        <img src="foto/26892.jpg" alt="Foto Profil" />
+        <p class="subtitle"><h1 style="margin:0; font-size:26px; letter-spacing:0.2px;">M AMIN APRIYANSYAH</h1></p>
+
+        <div class="actions">
+          <button class="btn btn-primary" id="btnQuotes">TENTANG DIRI</button>
+          <button class="btn btn-primary" id="btnpendidikan">PENDIDIKAN</button>
+          <button class="btn btn-primary" id="btnhobby">HOBBY</button>
+        </div>
+
+        <div class="toggle-area" id="quotesArea">
+          <strong style="color:var(--text)">TENTANG DIRI SAYA</strong>
+          <div>"Nama saya Adalah amin apriyansyah saya lahir pada tanggal 6-april-2007 itulah sebab kenapa nama saya apriyansyah, saya terlahir dari keluarga sederhana, saya anak ke dua dari tiga bersaudara, mempunyai abang dan adek"</div>
+          <div>"saya adalah seseorang yang lumayan pendiam tergantung mood, dan saya seseorang yang sering tidak percaya diri, saya adalah seseorang yang pekerja keras, rajin dalam melakukan tugas yang sudah di berikan."</div>
+        </div>
+
+        <div class="toggle-area" id="pendidikanArea">
+          <strong style="color:var(--text)">ASAL PENDIDIKAN SAYA</strong>
+          <div>SD: 104 KEDEMANGAN PADA TAHUN: 2013-2019</div>
+          <div>SMP/MTS: MTS TARBIYAH ISLAMIYAH PADA TAHUN:2020-2022</div>
+          <div>SMA/SMK/MAN: MAN 1 KOTA JAMBI OLAK KEMANG PADA TAHUN: 2023-2025</div>
+          <div>KULIAH: UIN JAMBI PADA TAHUN 2025-HINGGA SEKARANG</div>
+          <div>saya juga pernah sekolah di madrasah yang mengajarkan membaca al-qur'an dan membaca kitab pada tahun 2013-2019</div>
+        </div>
+
+        <div class="toggle-area" id="hobbyArea">
+          <strong style="color:var(--text)">HOBBY</strong>
+          <div>berolahraga, memainkan alat musil tradisional, coding</div>
+          <div>hobby saya sekaranng adalah bermain hadroh dan saya masuk dalam majelis yaitu majlis cinta rasulallah💚</div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Force nav above overlay
+    document.addEventListener('DOMContentLoaded', () => {
+      const leftNav = document.querySelector('.left-nav');
+      const rightNav = document.querySelector('.right-nav');
+      if (leftNav) leftNav.style.zIndex = 11;
+      if (rightNav) rightNav.style.zIndex = 11;
+    });
+
+    // Welcome overlay (2 detik)
+    (function () {
+      const overlay = document.getElementById('welcomeOverlay');
+      const charsEl = document.getElementById('welcomeChars');
+
+      const text = 'SELAMAT DATANG';
+      if (overlay && charsEl) {
+        charsEl.innerHTML = '';
+        [...text].forEach((ch, i) => {
+          const span = document.createElement('span');
+          span.className = 'char';
+          span.textContent = ch;
+          span.style.setProperty('--d', i);
+          span.dataset.i = i;
+          charsEl.appendChild(span);
+        });
+      }
+
+      setTimeout(() => {
+        if (!overlay) return;
+        overlay.classList.add('is-exiting');
+        setTimeout(() => overlay.remove(), 520);
+      }, 2000);
+    })();
+
+    const btnQuotes = document.getElementById('btnQuotes');
+    const quotesArea = document.getElementById('quotesArea');
+    const btnpendidikan = document.getElementById('btnpendidikan');
+    const pendidikanArea = document.getElementById('pendidikanArea');
+    const btnhobby = document.getElementById('btnhobby');
+    const hobbyarea = document.getElementById('hobbyArea');
+
+    function closeAllToggles() {
+      quotesArea.classList.remove('open');
+      pendidikanArea.classList.remove('open');
+      hobbyarea.classList.remove('open');
+    }
+
+    btnQuotes.addEventListener('click', () => {
+      if (quotesArea.classList.contains('open')) {
+        closeAllToggles();
+        return;
+      }
+      closeAllToggles();
+      quotesArea.classList.add('open');
+    });
+
+    btnpendidikan.addEventListener('click', () => {
+      if (pendidikanArea.classList.contains('open')) {
+        closeAllToggles();
+        return;
+      }
+      closeAllToggles();
+      pendidikanArea.classList.add('open');
+    });
+
+    btnhobby.addEventListener('click', () => {
+      if (hobbyarea.classList.contains('open')) {
+        closeAllToggles();
+        return;
+      }
+      closeAllToggles();
+      hobbyarea.classList.add('open');
+    });
+  </script>
+</body>
+</html>
+

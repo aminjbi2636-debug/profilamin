@@ -1,0 +1,76 @@
+/* Right nav helper styles for home.php */
+
+.right-nav {
+  position: fixed;
+  right: 14px;
+  top: 10%;
+  transform: translateY(-50%);
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.right-nav a {
+  display: inline-flex;
+  width: 200px;
+  height: 200px;
+  border-radius: 20px;
+
+  text-decoration: none;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 10px 30px rgba(79, 140, 255, 0.18);
+  overflow: hidden;
+  position: relative;
+  transition:
+    transform 180ms ease,
+    border-color 180ms ease,
+    background 180ms ease;
+}
+
+.right-nav a::before {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  background: linear-gradient(
+    120deg,
+    transparent 20%,
+    rgba(255, 255, 255, 0.25) 40%,
+    transparent 60%
+  );
+  transform: translateX(-100%);
+  opacity: 0;
+  transition: opacity 180ms ease;
+}
+
+.right-nav a:hover {
+  transform: translateY(-2px) scale(1.03);
+  border-color: rgba(255, 255, 255, 0.28);
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.right-nav a:hover::before {
+  opacity: 1;
+  animation: rightNavShine 900ms ease-in-out;
+}
+
+@keyframes rightNavShine {
+  0% {
+    transform: translateX(-120%);
+  }
+  100% {
+    transform: translateX(120%);
+  }
+}
+
+.right-nav img {
+  width: 300px;
+  height: 300px;
+  object-fit: cover;
+  border-radius: 16px;
+  filter: saturate(1.1) contrast(1.05);
+}
